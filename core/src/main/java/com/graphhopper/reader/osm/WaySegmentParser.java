@@ -18,9 +18,9 @@
 
 package com.graphhopper.reader.osm;
 
-import com.carrotsearch.hppc.LongHashSet;
-import com.carrotsearch.hppc.LongObjectHashMap;
 import com.carrotsearch.hppc.LongObjectMap;
+import com.carrotsearch.hppc.LongObjectScatterMap;
+import com.carrotsearch.hppc.LongScatterSet;
 import com.carrotsearch.hppc.LongSet;
 import com.carrotsearch.hppc.cursors.LongCursor;
 import com.graphhopper.reader.ReaderElement;
@@ -69,11 +69,11 @@ public class WaySegmentParser {
     private TurnRelationHandler turnRelationHandler;
     private int workerThreads;
 
-    private final LongSet wayNodes = new LongHashSet();
-    private final LongSet multiWayNodes = new LongHashSet();
-    private final LongSet wayIds = new LongHashSet();
-    private final LongObjectMap<ReaderNode> osmNodesByID = new LongObjectHashMap<>();
-    private final LongObjectMap<List<ReaderRelation>> osmRelationsByWayID = new LongObjectHashMap<>();
+    private final LongSet wayNodes = new LongScatterSet();
+    private final LongSet multiWayNodes = new LongScatterSet();
+    private final LongSet wayIds = new LongScatterSet();
+    private final LongObjectMap<ReaderNode> osmNodesByID = new LongObjectScatterMap<>();
+    private final LongObjectMap<List<ReaderRelation>> osmRelationsByWayID = new LongObjectScatterMap<>();
 
     private Date timestamp;
 

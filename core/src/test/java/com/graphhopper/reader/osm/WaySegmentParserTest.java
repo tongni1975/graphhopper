@@ -46,6 +46,7 @@ class WaySegmentParserTest {
 
     @Test
     void useOldOSMReaderForComparison() throws IOException {
+        // germany-190101: 284s
         EncodingManager encodingManager = EncodingManager.create("car,foot");
         GraphHopperStorage ghStorage = new GraphBuilder(encodingManager).build();
         new OSMReader(ghStorage).setFile(file).readGraph();
@@ -53,7 +54,8 @@ class WaySegmentParserTest {
     }
 
     @Test
-    void useNewOSMReader() {
+    void useNewOSMReader() throws IOException {
+        // germany-190101: 361s (using hash maps in WaySegmentParser it took 419s)
         EncodingManager encodingManager = EncodingManager.create("car,foot");
         GraphHopperStorage ghStorage = new GraphBuilder(encodingManager).build();
         ghStorage.create(1000);
