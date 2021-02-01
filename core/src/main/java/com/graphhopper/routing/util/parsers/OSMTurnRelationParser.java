@@ -87,6 +87,9 @@ public class OSMTurnRelationParser implements TurnCostParser {
                                 ExternalInternalMap map, Graph graph) {
         TurnCostStorage tcs = graph.getTurnCostStorage();
         int viaNode = map.getInternalNodeIdOfOsmNode(osmTurnRelation.getViaOsmNodeId());
+        // todonow: what does this mean and is this an error or should this be expected?
+        if (viaNode < 0)
+            return;
         EdgeExplorer edgeOutExplorer = getOutExplorer(graph), edgeInExplorer = getInExplorer(graph);
 
         try {

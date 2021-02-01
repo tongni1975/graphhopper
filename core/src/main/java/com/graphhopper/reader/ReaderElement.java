@@ -34,7 +34,7 @@ public abstract class ReaderElement {
     public static final int FILEHEADER = 3;
     private final int type;
     private final long id;
-    private final Map<String, Object> properties;
+    private Map<String, Object> properties;
 
     protected ReaderElement(long id, int type) {
         this(id, type, 4);
@@ -43,7 +43,6 @@ public abstract class ReaderElement {
     protected ReaderElement(long id, int type, int propertyMapSize) {
         this.id = id;
         this.type = type;
-        properties = new HashMap<>(propertyMapSize);
     }
 
     public long getId() {
@@ -51,7 +50,7 @@ public abstract class ReaderElement {
     }
 
     protected String tagsToString() {
-        if (properties.isEmpty())
+        if (properties == null)
             return "<empty>";
 
         StringBuilder tagTxt = new StringBuilder();
@@ -69,23 +68,30 @@ public abstract class ReaderElement {
     }
 
     public void setTags(Map<String, String> newTags) {
-        properties.clear();
-        if (newTags != null)
-            for (Entry<String, String> e : newTags.entrySet()) {
-                setTag(e.getKey(), e.getValue());
-            }
+        if (newTags == null || newTags.isEmpty()) {
+            properties = null;
+            return;
+        }
+        properties = new HashMap<>();
+        for (Entry<String, String> e : newTags.entrySet()) {
+            setTag(e.getKey(), e.getValue());
+        }
     }
 
     public boolean hasTags() {
-        return !properties.isEmpty();
+        return properties != null;
     }
 
     public String getTag(String name) {
+        if (properties == null)
+            return null;
         return (String) properties.get(name);
     }
 
     @SuppressWarnings("unchecked")
     public <T> T getTag(String key, T defaultValue) {
+        if (properties == null)
+            return null;
         T val = (T) properties.get(key);
         if (val == null)
             return defaultValue;
@@ -93,6 +99,8 @@ public abstract class ReaderElement {
     }
 
     public List<String> getKeysWithPrefix(String keyPrefix) {
+        if (properties == null)
+            return Collections.emptyList();
         List<String> keys = new ArrayList<>();
         for (String key : properties.keySet()) {
             if (key.startsWith(keyPrefix)) {
@@ -103,6 +111,8 @@ public abstract class ReaderElement {
     }
 
     public void setTag(String name, Object value) {
+        if (properties == null)
+            properties = new HashMap<>();
         properties.put(name, value);
     }
 
@@ -118,6 +128,8 @@ public abstract class ReaderElement {
      * for presence of the tag
      */
     public boolean hasTag(String key, String... values) {
+        if (properties == null)
+            return false;
         Object value = properties.get(key);
         if (value == null)
             return false;
@@ -153,6 +165,8 @@ public abstract class ReaderElement {
     }
 
     public boolean hasTagWithKeyPrefix(String keyPrefix) {
+        if (properties == null)
+            return false;
         for (String key : properties.keySet()) {
             if (key.startsWith(keyPrefix)) {
                 return true;
@@ -174,10 +188,13 @@ public abstract class ReaderElement {
 
     public void removeTag(String name) {
         properties.remove(name);
+        if (properties.isEmpty())
+            properties = null;
     }
 
     public void clearTags() {
-        properties.clear();
+        properties = null;
+//        properties.clear();
     }
 
     public int getType() {
@@ -190,6 +207,9 @@ public abstract class ReaderElement {
 
     @Override
     public String toString() {
-        return properties.toString();
+        if (properties == null) {
+            return "";
+        } else
+            return properties.toString();
     }
 }

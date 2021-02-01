@@ -509,7 +509,7 @@ public class OSMReader implements TurnCostParser.ExternalInternalMap {
      * The nodeFlags store the encoders to check for accessibility in edgeFlags. E.g. if nodeFlags==3, then the
      * accessibility of the first two encoders will be check in edgeFlags
      */
-    private static boolean isOnePassable(List<BooleanEncodedValue> checkEncoders, IntsRef edgeFlags) {
+    public static boolean isOnePassable(List<BooleanEncodedValue> checkEncoders, IntsRef edgeFlags) {
         for (BooleanEncodedValue accessEnc : checkEncoders) {
             if (accessEnc.getBool(false, edgeFlags) || accessEnc.getBool(true, edgeFlags))
                 return true;
@@ -829,7 +829,7 @@ public class OSMReader implements TurnCostParser.ExternalInternalMap {
     /**
      * Creates turn relations out of an unspecified OSM relation
      */
-    List<OSMTurnRelation> createTurnRelations(ReaderRelation relation) {
+    public static List<OSMTurnRelation> createTurnRelations(ReaderRelation relation) {
         List<OSMTurnRelation> osmTurnRelations = new ArrayList<>();
         String vehicleTypeRestricted = "";
         List<String> vehicleTypesExcept = new ArrayList<>();
@@ -862,7 +862,7 @@ public class OSMReader implements TurnCostParser.ExternalInternalMap {
         return osmTurnRelations;
     }
 
-    OSMTurnRelation createTurnRelation(ReaderRelation relation, String restrictionType, String vehicleTypeRestricted, List<String> vehicleTypesExcept) {
+    public static OSMTurnRelation createTurnRelation(ReaderRelation relation, String restrictionType, String vehicleTypeRestricted, List<String> vehicleTypesExcept) {
         OSMTurnRelation.Type type = OSMTurnRelation.Type.getRestrictionType(restrictionType);
         if (type != OSMTurnRelation.Type.UNSUPPORTED) {
             long fromWayID = -1;

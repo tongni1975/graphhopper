@@ -17,6 +17,7 @@
  */
 package com.graphhopper.reader.osm;
 
+import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.LongIndexedContainer;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
@@ -344,36 +345,63 @@ public class OSMReaderTest {
         GraphHopper hopper = new GraphHopperFacade(fileBarriers).
                 setMinNetworkSize(0).
                 importOrLoad();
-
         Graph graph = hopper.getGraphHopperStorage();
-        assertEquals(8, graph.getNodes());
+        // there should be 6 tower nodes: the ones with OSM IDs 10,20,30,50,60,80
+        // and 2 additional artificial nodes for the barrier edges for the two barrier nodes
+        // nodes 40 and 70 are just pillar nodes
+        assertEquals(6 + 2, graph.getNodes());
 
+        // we don't know which GH node IDs were assigned to the OSM nodes, but we can retrieve this information
         int n10 = AbstractGraphStorageTester.getIdOf(graph, 51);
         int n20 = AbstractGraphStorageTester.getIdOf(graph, 52);
         int n30 = AbstractGraphStorageTester.getIdOf(graph, 53);
         int n50 = AbstractGraphStorageTester.getIdOf(graph, 55);
 
-        // separate id
-        int new20 = 4;
-        assertNotEquals(n20, new20);
+        // there should be two nodes at OSM node 20, because of the additional barrier edge node
+        IntArrayList nodesAt20 = getNodesAtLat(graph, 52);
+        assertEquals(2, nodesAt20.size());
+        int index = nodesAt20.indexOf(n20);
+        int b20;
+        if (index == 0)
+            b20 = nodesAt20.get(1);
+        else if (index == 1)
+            b20 = nodesAt20.get(0);
+        else {
+            fail("n20 is expected to be found at OSM node 20, but got: " + nodesAt20 + ", n20=" + n20);
+            return;
+        }
+
+        // the barrier edge consists of two different nodes with equal coordinates
+        assertNotEquals(n20, b20);
         NodeAccess na = graph.getNodeAccess();
-        assertEquals(na.getLat(n20), na.getLat(new20), 1e-5);
-        assertEquals(na.getLon(n20), na.getLon(new20), 1e-5);
+        assertEquals(na.getLat(n20), na.getLat(b20), 1e-5);
+        assertEquals(na.getLon(n20), na.getLon(b20), 1e-5);
 
-        assertEquals(n20, findID(hopper.getLocationIndex(), 52, 9.4));
-
+        // we can reach the two ends of the barrier edge from OSM nodes 10 and 30
         assertEquals(GHUtility.asSet(n20, n30), GHUtility.getNeighbors(carOutExplorer.setBaseNode(n10)));
-        assertEquals(GHUtility.asSet(new20, n10, n50), GHUtility.getNeighbors(carOutExplorer.setBaseNode(n30)));
+        assertEquals(GHUtility.asSet(b20, n10, n50), GHUtility.getNeighbors(carOutExplorer.setBaseNode(n30)));
 
+        // we cannot pass through the barrier edge
         EdgeIterator iter = carOutExplorer.setBaseNode(n20);
         assertTrue(iter.next());
         assertEquals(n10, iter.getAdjNode());
         assertFalse(iter.next());
 
-        iter = carOutExplorer.setBaseNode(new20);
+        iter = carOutExplorer.setBaseNode(b20);
         assertTrue(iter.next());
         assertEquals(n30, iter.getAdjNode());
         assertFalse(iter.next());
+    }
+
+    private IntArrayList getNodesAtLat(Graph graph, double lat) {
+        IntArrayList result = new IntArrayList();
+        NodeAccess na = graph.getNodeAccess();
+        for (int i = 0; i < graph.getNodes(); i++) {
+            if (Math.abs(na.getLat(i) - lat) < 1.e-4) {
+                result.add(i);
+            }
+        }
+        return result;
     }
 
     @Test
@@ -416,6 +444,8 @@ public class OSMReaderTest {
         GraphHopper hopper = new GraphHopperFacade("test-avoid-loops4.xml").importOrLoad();
         GraphHopperStorage graph = hopper.getGraphHopperStorage();
         AllEdgesIterator iter = graph.getAllEdges();
+        // todonow: this check fails with new osm reader, but why is this bad? and why did we not handle this case so
+        // far?
         assertEquals(2, iter.length());
         while (iter.next()) {
             assertTrue(iter.getAdjNode() != iter.getBaseNode(), "found a loop");
@@ -431,6 +461,7 @@ public class OSMReaderTest {
                 setMinNetworkSize(0).
                 importOrLoad();
         Graph graph = hopper.getGraphHopperStorage();
+        // 6 tower nodes and 2 artificial nodes for barrier edges
         assertEquals(8, graph.getNodes());
 
         int n60 = AbstractGraphStorageTester.getIdOf(graph, 56);
