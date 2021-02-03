@@ -147,6 +147,8 @@ public class NewOSMReader {
                     createBarrierEdge(barrierNode, extraBarrierEdgeNode, nodeFlags, edgeFlags, way);
                     subSegment.add(artificialReaderNode);
                 } else {
+                    // todonow: add some logs to find out if there are cases where barrier nodes are at
+                    // junctions.
                     subSegment.add(readerNode);
                 }
             } else {

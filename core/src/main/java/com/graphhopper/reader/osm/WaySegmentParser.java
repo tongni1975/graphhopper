@@ -69,6 +69,7 @@ public class WaySegmentParser {
     private TurnRelationHandler turnRelationHandler;
     private int workerThreads;
 
+    // todonow: we can probably get rid of this by using the keys of osmNodesByID that we fill in pass2 anyway
     private final LongSet wayNodes = new LongScatterSet();
     private final LongSet multiWayNodes = new LongScatterSet();
     private final LongSet wayIds = new LongScatterSet();
