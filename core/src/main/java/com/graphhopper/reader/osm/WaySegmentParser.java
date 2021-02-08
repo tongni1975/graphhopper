@@ -85,7 +85,7 @@ public class WaySegmentParser {
 
     /**
      * @param osmFile             the OSM file to parse, supported formats include .osm.xml, .osm.gz and .xml.pbf
-     * @param wayFilter           returns false for OSM that should be ignored, otherwise true
+     * @param wayFilter           returns false for OSM ways that should be ignored or true otherwise
      * @param relationFilter      returns false for OSM relations that should be ignored, otherwise true. relations of
      *                            relations and relation members that are not ways are always ignored. relations of type
      *                            'restriction' are always accepted, but handled via a separate handle, see below.
