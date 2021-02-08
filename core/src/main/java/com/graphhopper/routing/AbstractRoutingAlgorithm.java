@@ -38,10 +38,10 @@ public abstract class AbstractRoutingAlgorithm implements RoutingAlgorithm {
     protected final Weighting weighting;
     protected final FlagEncoder flagEncoder;
     protected final TraversalMode traversalMode;
-    protected NodeAccess nodeAccess;
-    protected EdgeExplorer edgeExplorer;
-    protected EdgeFilter inEdgeFilter;
-    protected EdgeFilter outEdgeFilter;
+    protected final NodeAccess nodeAccess;
+    protected final EdgeExplorer edgeExplorer;
+    protected final EdgeFilter inEdgeFilter;
+    protected final EdgeFilter outEdgeFilter;
     protected int maxVisitedNodes = Integer.MAX_VALUE;
     private boolean alreadyRun;
 
