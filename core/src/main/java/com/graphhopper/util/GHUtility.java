@@ -700,7 +700,10 @@ public class GHUtility {
 
     public static double calcWeightWithTurnWeightWithAccess(Weighting weighting, EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         BooleanEncodedValue accessEnc = weighting.getFlagEncoder().getAccessEnc();
-        if ((!reverse && !edgeState.get(accessEnc)) || (reverse && !edgeState.getReverse(accessEnc))) {
+        if (edgeState.getBaseNode() == edgeState.getAdjNode()) {
+            if (!edgeState.get(accessEnc) && !edgeState.getReverse(accessEnc))
+                return Double.POSITIVE_INFINITY;
+        } else if ((!reverse && !edgeState.get(accessEnc)) || (reverse && !edgeState.getReverse(accessEnc))) {
             return Double.POSITIVE_INFINITY;
         }
         return calcWeightWithTurnWeight(weighting, edgeState, reverse, prevOrNextEdgeId);
