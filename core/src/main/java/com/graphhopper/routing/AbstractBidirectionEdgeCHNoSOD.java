@@ -19,9 +19,8 @@ package com.graphhopper.routing;
 
 import com.graphhopper.routing.ch.CHEntry;
 import com.graphhopper.routing.ch.EdgeBasedCHBidirPathExtractor;
-import com.graphhopper.routing.ev.BooleanEncodedValue;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.util.WeightedEdgeFilter;
 import com.graphhopper.storage.CHEdgeFilter;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
@@ -45,9 +44,8 @@ public abstract class AbstractBidirectionEdgeCHNoSOD extends AbstractBidirCHAlgo
         }
         // the inner explorers will run on the base-(or base-query-)graph edges only.
         // we need extra edge explorers, because they get called inside a loop that already iterates over edges
-        BooleanEncodedValue accessEnc = graph.getWeighting().getFlagEncoder().getAccessEnc();
-        innerInExplorer = graph.getBaseGraph().createEdgeExplorer(DefaultEdgeFilter.inEdges(accessEnc));
-        innerOutExplorer = graph.getBaseGraph().createEdgeExplorer(DefaultEdgeFilter.outEdges(accessEnc));
+        innerInExplorer = graph.getBaseGraph().createEdgeExplorer(WeightedEdgeFilter.inEdges(graph.getWeighting()));
+        innerOutExplorer = graph.getBaseGraph().createEdgeExplorer(WeightedEdgeFilter.outEdges(graph.getWeighting()));
         setPathExtractorSupplier(() -> new EdgeBasedCHBidirPathExtractor(graph));
     }
 
