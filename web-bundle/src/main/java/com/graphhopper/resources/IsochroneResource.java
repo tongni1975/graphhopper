@@ -9,10 +9,12 @@ import com.graphhopper.isochrone.algorithm.ContourBuilder;
 import com.graphhopper.isochrone.algorithm.ShortestPathTree;
 import com.graphhopper.isochrone.algorithm.Triangulator;
 import com.graphhopper.jackson.ResponsePathSerializer;
-import com.graphhopper.util.JsonFeature;
 import com.graphhopper.routing.ProfileResolver;
 import com.graphhopper.routing.querygraph.QueryGraph;
-import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.util.BidirWeightedEdgeFilter;
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.BlockAreaWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
@@ -95,8 +97,8 @@ public class IsochroneResource {
         if (profile == null) {
             throw new IllegalArgumentException("The requested profile '" + profileName + "' does not exist");
         }
-        FlagEncoder encoder = encodingManager.getEncoder(profile.getVehicle());
-        EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(encoder);
+        Weighting weighting = graphHopper.createWeighting(profile, hintsMap);
+        EdgeFilter edgeFilter = new BidirWeightedEdgeFilter(weighting);
         LocationIndex locationIndex = graphHopper.getLocationIndex();
         Snap snap = locationIndex.findClosest(point.get().lat, point.get().lon, edgeFilter);
         if (!snap.isValid())
@@ -105,10 +107,9 @@ public class IsochroneResource {
         Graph graph = graphHopper.getGraphHopperStorage();
         QueryGraph queryGraph = QueryGraph.create(graph, snap);
 
-        Weighting weighting = graphHopper.createWeighting(profile, hintsMap);
         if (hintsMap.has(Parameters.Routing.BLOCK_AREA))
             weighting = new BlockAreaWeighting(weighting, GraphEdgeIdFinder.createBlockArea(graph, locationIndex,
-                    Collections.singletonList(point.get()), hintsMap, DefaultEdgeFilter.allEdges(encoder)));
+                    Collections.singletonList(point.get()), hintsMap, edgeFilter));
         TraversalMode traversalMode = profile.isTurnCosts() ? EDGE_BASED : NODE_BASED;
         ShortestPathTree shortestPathTree = new ShortestPathTree(queryGraph, weighting, reverseFlow, traversalMode);
 

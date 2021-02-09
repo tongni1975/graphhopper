@@ -18,8 +18,9 @@
 package com.graphhopper.routing;
 
 import com.graphhopper.routing.ev.*;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.BidirWeightedEdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.WeightedEdgeFilter;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
@@ -98,8 +99,8 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         prevNode = -1;
         prevInRoundabout = false;
         prevName = null;
-        outEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(encoder));
-        crossingExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.allEdges(encoder));
+        outEdgeExplorer = graph.createEdgeExplorer(WeightedEdgeFilter.outEdges(weighting));
+        crossingExplorer = graph.createEdgeExplorer(new BidirWeightedEdgeFilter(weighting));
     }
 
     /**
