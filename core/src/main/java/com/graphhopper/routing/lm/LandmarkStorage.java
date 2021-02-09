@@ -786,6 +786,7 @@ public class LandmarkStorage implements Storable<LandmarkStorage> {
                 finishedFrom = true;
             // no path should be calculated
             setUpdateBestPath(false);
+            edgeFilter = EdgeFilter.ALL_EDGES;
         }
 
         public void setFilter(IntHashSet set, boolean bwd, boolean fwd) {
@@ -939,7 +940,9 @@ public class LandmarkStorage implements Storable<LandmarkStorage> {
         @Override
         public final boolean accept(EdgeIteratorState iter) {
             boolean blocked = blockedEdges.contains(iter.getEdge());
-            return fwd && iter.get(accessEnc) && !blocked || bwd && iter.getReverse(accessEnc) && !blocked;
+            if (blocked)
+                return false;
+            return fwd && iter.get(accessEnc) || bwd && iter.getReverse(accessEnc);
         }
 
         @Override
