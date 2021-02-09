@@ -773,7 +773,6 @@ public class LandmarkStorage implements Storable<LandmarkStorage> {
         private boolean from;
         private final LandmarkStorage lms;
         private SPTEntry lastEntry;
-        private EdgeFilter edgeFilter;
 
         public LandmarkExplorer(Graph g, LandmarkStorage lms, Weighting weighting, TraversalMode tMode, boolean from) {
             super(g, weighting, tMode);
@@ -786,19 +785,12 @@ public class LandmarkStorage implements Storable<LandmarkStorage> {
                 finishedFrom = true;
             // no path should be calculated
             setUpdateBestPath(false);
-            edgeFilter = EdgeFilter.ALL_EDGES;
-        }
-
-        @Override
-        protected double calcWeight(EdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
-            if (!edgeFilter.accept(iter)) {
-                return Double.POSITIVE_INFINITY;
-            }
-            return super.calcWeight(iter, currEdge, reverse);
         }
 
         public void setFilter(IntHashSet set, boolean bwd, boolean fwd) {
-            edgeFilter = new BlockedEdgesFilter(flagEncoder.getAccessEnc(), bwd, fwd, set);
+            EdgeFilter ef = new BlockedEdgesFilter(flagEncoder.getAccessEnc(), bwd, fwd, set);
+            inEdgeFilter = ef;
+            outEdgeFilter = ef;
         }
 
         public void setStartNode(int startNode) {
@@ -941,9 +933,7 @@ public class LandmarkStorage implements Storable<LandmarkStorage> {
         @Override
         public final boolean accept(EdgeIteratorState iter) {
             boolean blocked = blockedEdges.contains(iter.getEdge());
-            if (blocked)
-                return false;
-            return fwd && iter.get(accessEnc) || bwd && iter.getReverse(accessEnc);
+            return fwd && iter.get(accessEnc) && !blocked || bwd && iter.getReverse(accessEnc) && !blocked;
         }
 
         @Override
